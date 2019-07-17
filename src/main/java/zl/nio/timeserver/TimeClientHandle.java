@@ -43,11 +43,7 @@ public class TimeClientHandle implements Runnable {
         //单独启动一个线程
         new Thread(client, "NIO-MultiplexerClient-001").start();
     }
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Runnable#run()
-     */
+
     @Override
     public void run() {
         try {

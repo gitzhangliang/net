@@ -11,7 +11,7 @@ import java.util.Iterator;
 /**
  * Created by viruser on 2017/6/8.
  */
-public class NioClient {
+public class NioClient extends AbstractNio{
     //通道管理器
     private Selector selector;
 
@@ -42,6 +42,7 @@ public class NioClient {
      */
     public void connect() throws IOException {
         System.out.println("客户端启动成功！");
+        System.out.println(this.selector.selectedKeys().size());
         // 轮询访问selector
         while (true) {
             // 选择一组可以进行I/O操作的事件，放在selector中,客户端的该方法不会阻塞，
@@ -66,30 +67,13 @@ public class NioClient {
                     //在这里可以给服务端发送信息哦
                     channel.write(ByteBuffer.wrap(new String("向服务端发送了一条信息").getBytes("utf-8")));
                     //在和服务端连接成功之后，为了可以接收到服务端的信息，需要给通道设置读的权限。
-                    channel.register(this.selector, SelectionKey.OP_READ);                                            // 获得了可读的事件
+                    // 获得了可读的事件
+                    channel.register(this.selector, SelectionKey.OP_READ);
                 } else if (key.isReadable()) {
-                    read(key);
+                    read(key,"客户端收到信息：");
                 }
             }
         }
-    }
-    /**
-     * 处理读取服务端发来的信息 的事件
-     * @param key
-     * @throws IOException
-     */
-    public void read(SelectionKey key) throws IOException{
-        //和服务端的read方法一样
-        // 服务器可读取消息:得到事件发生的Socket通道
-        SocketChannel channel = (SocketChannel) key.channel();
-        // 创建读取的缓冲区
-        ByteBuffer buffer = ByteBuffer.allocate(512);
-        channel.read(buffer);
-        byte[] data = buffer.array();
-        String msg = new String(data).trim();
-        System.out.println("客户端收到信息：" + msg);
-        ByteBuffer outBuffer = ByteBuffer.wrap(msg.getBytes("utf-8"));
-        channel.write(outBuffer);// 将消息回送给客户端
     }
 
 
@@ -99,7 +83,7 @@ public class NioClient {
      */
     public static void main(String[] args) throws IOException {
         NioClient client = new NioClient();
-        client.initClient("localhost",8000);
+        client.initClient("localhost",7000);
         client.connect();
     }
 
